@@ -7,6 +7,6 @@ $output = null;
 $cmdCall = 'git pull';
 
 exec($cmdCall, $output, $code);
-echo 'you got pull';
+echo "\n".'you got pull'."\n";
 print_r($output);
 
