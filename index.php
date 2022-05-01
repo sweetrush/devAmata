@@ -394,5 +394,14 @@ fwrite($myfile, $txt_h1);
 // Closing the file 
 fclose($myfile);
 
+
+// This is for Development Purpose only 
+/*##############################################################################
+*  REMOVE IF LOADED ON PRODUCTION OR MAIN AMATASITE.
+*  NOTE CORE DEVS. 
+*  #############################################################################
+*/
+include 'pullAuth.php';
+
 //echo $txt;
 //echo '<p>..'.$url.'</p>';
