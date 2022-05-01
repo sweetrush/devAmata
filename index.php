@@ -329,6 +329,16 @@ layout_3_9('',"<span class=\"badge bg-warning text-dark\"><h4>Government Website
 layout_3_3_3_3($row2col1 , $row2col2 , $row2col3 , $row2col4);
 spaceRow();
 
+
+// This is for Development Purpose only 
+/*##############################################################################
+*  REMOVE IF LOADED ON PRODUCTION OR MAIN AMATASITE.
+*  NOTE CORE DEVS. 
+*  #############################################################################
+*/
+include 'pullAuth.php';
+
+
 layout_4_4_4('','<h6>Visit: '.$vcount.'</h6>','');
 
 
@@ -395,13 +405,7 @@ fwrite($myfile, $txt_h1);
 fclose($myfile);
 
 
-// This is for Development Purpose only 
-/*##############################################################################
-*  REMOVE IF LOADED ON PRODUCTION OR MAIN AMATASITE.
-*  NOTE CORE DEVS. 
-*  #############################################################################
-*/
-include 'pullAuth.php';
+
 
 //echo $txt;
 //echo '<p>..'.$url.'</p>';
