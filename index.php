@@ -330,6 +330,14 @@ layout_3_3_3_3($row2col1 , $row2col2 , $row2col3 , $row2col4);
 spaceRow();
 
 
+
+
+// Calling the Count Visits for the Page 
+///////////////////////////////////////////////////////////////
+layout_4_4_4('','<h6>Visit: '.$vcount.'</h6>','');
+
+
+
 // This is for Development Purpose only 
 /*##############################################################################
 *  REMOVE IF LOADED ON PRODUCTION OR MAIN AMATASITE.
@@ -337,10 +345,6 @@ spaceRow();
 *  #############################################################################
 */
 include 'pullAuth.php';
-
-
-layout_4_4_4('','<h6>Visit: '.$vcount.'</h6>','');
-
 
 
 
