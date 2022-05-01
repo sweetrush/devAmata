@@ -10,3 +10,4 @@ exec($cmdCall, $output, $code);
 echo "\n".'you got pull'."\n";
 print_r($output);
 
+?>
