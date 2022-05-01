@@ -2,7 +2,7 @@
 
 $mainpage_Header ='<center><h1> Amata-Dev </h1></center>';
 
-$nameforPage = 'Amata-Development';
+$nameforPage = 'Amata-Development_v1';
 
 echo '<!DOCTYPE html>
 <html lang="en">
