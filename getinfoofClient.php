@@ -1,0 +1,4 @@
+<?php
+
+//getinfoofClient.php
+////
