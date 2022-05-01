@@ -11,7 +11,7 @@ file_put_contents('vcount_dif',$vcount);
 /////////////////////////////////////////////////////////
 
 
-// Loading Helpers for the Design and contnet processing 
+// Loading Helpers for the Design and content processing 
 include './corestruts/helperlibs.php';
 
 include './corestruts/headerline.php';
