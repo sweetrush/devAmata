@@ -76,7 +76,7 @@ function layout_4_4_4($l1,$l2,$l3){
 	// |  4    |     4     |   4   |
 	// |=======|===========|=======|
 
-echo '<div class="container">
+echo '<div class="container-fluid">
   		<div class="row">
     		<div class="col-4">'.$l1.'</div>
     		<div class="col-4">'.$l2.'</div>
@@ -104,6 +104,23 @@ echo '<div class="container-fluid">
 
 }
 
+function layout_sm_3_3_3_3($l1,$l2,$l3,$l4){
+
+	// |=====|======|======|=======|
+	// |  3  |   3  |   3  |   3   |
+	// |=====|======|======|=======|
+
+echo '<div class="container-fluid">
+  		<div class="row">
+    		<div class="col-sm-3">'.$l1.'</div>
+    		<div class="col-sm-3">'.$l2.'</div>
+    		<div class="col-sm-3">'.$l3.'</div>
+    		<div class="col-sm-3">'.$l4.'</div>
+  	    </div>
+  	  </div>';
+
+}
+
 function layout_3_9($l1,$l2){
 
 	// |=====|======|======|=======|
@@ -114,6 +131,20 @@ echo '<div class="container-fluid">
   		<div class="row">
     		<div class="col-3">'.$l1.'</div>
     		<div class="col-9">'.$l2.'</div>
+  	    </div>
+  	  </div>';
+
+}
+
+function layout_1($l1){
+
+	// |=====|======|======|=======|
+	// |            1              |
+	// |=====|======|======|=======|
+
+echo '<div class="container-fluid">
+  		<div class="row">
+    		<div class="col">'.$l1.'</div>
   	    </div>
   	  </div>';
 
