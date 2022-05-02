@@ -301,15 +301,15 @@ layout_4_4_4('.',''.$submittingURL.'','.');
 
 //ROW One
 
-layout_3_9('',"<span class=\"badge bg-warning text-dark\"><h4>Search Engines / Masini Saili <span class=\"badge bg-secondary\"> 12 </span></h4>");
-layout_3_3_3_3($row1col1 , $row1col2 ,$row1col3 ,'');
+layout_1("<h4 class=\"rounded bg-warning text-dark mb-3 p-3\">Search Engines / Masini Saili <span class=\"badge bg-secondary\"> 12 </span></h4>");
+layout_sm_3_3_3_3($row1col1 , $row1col2 ,$row1col3 ,'');
 spaceRow();
 
 
 /////////////////////////
-layout_3_9('',"<span class=\"badge bg-warning text-dark\"><h4>Online Shops / 
+layout_1("<h4 class=\"rounded bg-warning text-dark mb-3 p-3\">Online Shops / 
 Faleoloa faaleupegatafailagi <span class=\"badge bg-secondary\"> ".sizeof($samoaonlineshops)." </span></h4>");
-layout_3_3_3_3($onlineshopsrow1col1 , $onlineshopsrow1col2 , $onlineshopsrow1col3 , $onlineshopsrow1col4);
+layout_sm_3_3_3_3($onlineshopsrow1col1 , $onlineshopsrow1col2 , $onlineshopsrow1col3 , $onlineshopsrow1col4);
 spaceRow();
 /////////////////////////
 
@@ -317,16 +317,16 @@ spaceRow();
 
 
 //ROW TWO
-layout_3_9('',"<span class=\"badge bg-warning text-dark\"><h4>Banks & Financials / Faletupe ma Ofisa mo Tupe  <span class=\"badge bg-secondary\"> ".sizeof($samoanBank)." </span></h4>");
-layout_3_3_3_3($Bankrow1col1 , $Bankrow1col2 , $Bankrow1col3 , $Bankrow1col4);
+layout_1("<h4 class=\"rounded bg-warning text-dark mb-3 p-3\">Banks & Financials / Faletupe ma Ofisa mo Tupe  <span class=\"badge bg-secondary\"> ".sizeof($samoanBank)." </span></h4>");
+layout_sm_3_3_3_3($Bankrow1col1 , $Bankrow1col2 , $Bankrow1col3 , $Bankrow1col4);
 spaceRow();
 //ROW TWO
-layout_3_9('',"<span class=\"badge bg-warning text-dark\"><h4>ISP & Telcos / Kamupani Initaneti ma Telefoni <span class=\"badge bg-secondary\"> ".sizeof($samoaISPnTelcos)." </span></h4>");
-layout_3_3_3_3($ISP_Telcosrow1col1 , $ISP_Telcosrow1col2 , $ISP_Telcosrow1col3 , $ISP_Telcosrow1col4);
+layout_1("<h4 class=\"rounded bg-warning text-dark mb-3 p-3\">ISP & Telcos / Kamupani Initaneti ma Telefoni <span class=\"badge bg-secondary\"> ".sizeof($samoaISPnTelcos)." </span></h4>");
+layout_sm_3_3_3_3($ISP_Telcosrow1col1 , $ISP_Telcosrow1col2 , $ISP_Telcosrow1col3 , $ISP_Telcosrow1col4);
 spaceRow();
 //ROW THREE
-layout_3_9('',"<span class=\"badge bg-warning text-dark\"><h4>Government Websites / Upegatafailagi Mo Ofisa A le Malo</span><span class=\"badge bg-secondary\"> ".sizeof($govsite)." </h4>");
-layout_3_3_3_3($row2col1 , $row2col2 , $row2col3 , $row2col4);
+layout_1("<h4 class=\"rounded bg-warning text-dark mb-3 p-3\">Government Websites / Upegatafailagi Mo Ofisa A le Malo</span><span class=\"badge bg-secondary\"> ".sizeof($govsite)." </h4>");
+layout_sm_3_3_3_3($row2col1 , $row2col2 , $row2col3 , $row2col4);
 spaceRow();
 
 
