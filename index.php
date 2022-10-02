@@ -1,4 +1,14 @@
 <?php
+/*
+ *
+ * This is the name Program File for the Amata Page Indexes
+ * #############################################################################
+ * Info: Add changes to this page at the following Site. 
+ *
+*/
+
+
+
 session_start();
 $vcount = file_get_contents('vcount_dif');
 $vcount = $vcount + 1;
