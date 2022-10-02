@@ -26,7 +26,8 @@ include './corestruts/navliner.php';
 
 
 // Government Site Array
-$govsite = ['www.psc.gov.ws', 
+$govsite = [
+  'www.psc.gov.ws', 
 	'www.audit.gov.ws',
 	'www.ag.gov.ws',
 	'www.palemene.ws',
@@ -66,7 +67,8 @@ $govsite = ['www.psc.gov.ws',
 	'www.scros.org.ws',
 	'www.utos.gov.ws',
 	'www.cbs.gov.ws'
-	];
+	
+  ];
 
 
 $samoanBank = [
