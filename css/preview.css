@@ -1,0 +1,111 @@
+/* Preview Container */
+.site-link {
+    position: relative;
+}
+
+.preview-popup {
+    display: none;
+    position: fixed;
+    width: 450px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-in-out;
+    overflow: hidden;
+}
+
+/* Preview Toolbar */
+.preview-toolbar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 8px;
+    display: flex;
+    gap: 8px;
+    background: linear-gradient(to left, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+    border-radius: 0 12px 0 12px;
+    z-index: 2;
+}
+
+.preview-toolbar button {
+    background: white;
+    border: none;
+    padding: 6px;
+    border-radius: 6px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Device Preview Modes */
+.preview-content.desktop-mode .preview-iframe {
+    width: 100%;
+    height: 100%;
+}
+
+.preview-content.mobile-mode .preview-iframe {
+    width: 375px;
+    height: 667px;
+    transform: scale(0.75);
+    transform-origin: top left;
+    border: 12px solid #333;
+    border-radius: 32px;
+    margin: 20px auto;
+}
+
+.preview-content.tablet-mode .preview-iframe {
+    width: 768px;
+    height: 1024px;
+    transform: scale(0.4);
+    transform-origin: top left;
+    border: 16px solid #333;
+    border-radius: 24px;
+    margin: 20px auto;
+}
+
+/* Loading States */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255,255,255,0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
