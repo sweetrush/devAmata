@@ -1,19 +1,28 @@
 class App {
     constructor() {
         this.visitCount = parseInt(localStorage.getItem('visitCount') || '0');
-        this.siteStatuses = new Map(); // Store site statuses
+        this.siteStatuses = new Map();
         this.init();
     }
 
-    // Create site link with status indicator
+    init() {
+        this.updateVisitCount();
+        this.populateSites();
+        this.initializeSearchFilter();
+        this.setupEventListeners();
+        this.addRefreshStatusButton();
+    }
+
     createSiteLink(site) {
         const statusId = `status-${site.url.replace(/[^a-zA-Z0-9]/g, '-')}`;
         return `
             <div class="site-link">
-                <a href="https://${site.url}" 
-                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                   onclick="app.showPreview('${site.url}', '${site.name}', event); return false;"
-                   target="_blank">
+                <button 
+                    class="list-group-item list-group-item-action d-flex justify-content-between align-items-center w-100 border-0 bg-transparent"
+                    data-bs-toggle="modal" 
+                    data-site-url="${site.url}"
+                    data-site-name="${site.name}"
+                    onclick="app.showPreview('${site.url}', '${site.name}', event)">
                     <div class="d-flex align-items-center">
                         <i class="fas fa-globe me-2"></i>
                         <div>
@@ -34,19 +43,30 @@ class App {
                     <div class="preview-link">
                         <i class="fas fa-external-link-alt"></i>
                     </div>
-                </a>
+                </button>
             </div>
         `;
     }
 
-    // Check status for a single site
+    showPreview(url, name, event) {
+        event.preventDefault();
+        
+        if (currentPreview) {
+            currentPreview.modal.hide();
+        }
+
+        currentPreview = new SitePreview(url, name);
+        currentPreview.createPreview();
+        this.trackPreview(url);
+    }
+
     async checkSiteStatus(url) {
         const statusId = `status-${url.replace(/[^a-zA-Z0-9]/g, '-')}`;
         const statusElement = document.getElementById(statusId);
         
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
             
             const response = await fetch(`https://${url}`, { 
                 mode: 'no-cors',
@@ -62,7 +82,6 @@ class App {
         }
     }
 
-    // Update the status indicator UI
     updateStatusIndicator(element, isUp) {
         if (!element) return;
 
@@ -71,7 +90,6 @@ class App {
             '<span class="badge bg-danger">Down</span>';
     }
 
-    // Check all sites' status
     async checkAllSitesStatus() {
         const allSites = [
             ...siteData.searchEngines,
@@ -79,17 +97,13 @@ class App {
             ...siteData.bankSites
         ];
 
-        // Check status for each site
         for (const site of allSites) {
             await this.checkSiteStatus(site.url);
-            // Small delay between checks to prevent overwhelming requests
             await new Promise(resolve => setTimeout(resolve, 100));
         }
     }
 
-    // Populate all site categories
     populateSites() {
-        // Previous population code...
         const searchEnginesContainer = document.getElementById('searchEngines');
         if (searchEnginesContainer) {
             searchEnginesContainer.innerHTML = siteData.searchEngines
@@ -114,22 +128,83 @@ class App {
             this.updateCategoryCount('banksCount', siteData.bankSites.length);
         }
 
-        // Start checking statuses after populating
         this.checkAllSitesStatus();
     }
 
-    // Initialize the application
-    init() {
-        this.updateVisitCount();
-        this.populateSites();
-        this.initializeSearchFilter();
-        this.setupEventListeners();
-
-        // Add refresh status button
-        this.addRefreshStatusButton();
+    updateCategoryCount(elementId, count) {
+        const countElement = document.getElementById(elementId);
+        if (countElement) {
+            countElement.textContent = count;
+        }
     }
 
-    // Add refresh status button
+    initializeSearchFilter() {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase().trim();
+                this.filterSites(searchTerm);
+            });
+        }
+    }
+
+    filterSites(searchTerm) {
+        document.querySelectorAll('.site-link').forEach(link => {
+            const text = link.textContent.toLowerCase();
+            const parent = link.closest('.card');
+            const isVisible = text.includes(searchTerm);
+            
+            link.style.display = isVisible ? '' : 'none';
+            
+            if (parent) {
+                const visibleLinks = parent.querySelectorAll('.site-link[style="display: none"]').length;
+                const counter = parent.querySelector('.badge');
+                if (counter) {
+                    counter.textContent = visibleLinks;
+                }
+            }
+        });
+
+        this.updateSearchResults(searchTerm);
+    }
+
+    updateSearchResults(searchTerm) {
+        const noResults = document.getElementById('noResults');
+        if (noResults) {
+            const totalVisible = document.querySelectorAll('.site-link[style="display: none"]').length;
+            
+            if (searchTerm && totalVisible === 0) {
+                noResults.classList.remove('d-none');
+                noResults.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="fas fa-search me-2"></i>
+                        No sites found matching "${searchTerm}"
+                    </div>
+                `;
+            } else {
+                noResults.classList.add('d-none');
+            }
+        }
+    }
+
+    setupEventListeners() {
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && currentPreview) {
+                currentPreview.modal.hide();
+            }
+        });
+
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                if (currentPreview) {
+                    currentPreview.adjustSize();
+                }
+            }, 100);
+        });
+    }
+
     addRefreshStatusButton() {
         const searchContainer = document.querySelector('.search-container');
         if (searchContainer) {
@@ -138,34 +213,37 @@ class App {
             refreshButton.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Status';
             refreshButton.onclick = () => this.checkAllSitesStatus();
             
-            searchContainer.querySelector('.input-group').after(refreshButton);
+            const inputGroup = searchContainer.querySelector('.input-group');
+            if (inputGroup) {
+                inputGroup.parentNode.insertBefore(refreshButton, inputGroup.nextSibling);
+            }
         }
     }
 
-    // Rest of the App class methods remain the same...
+    updateVisitCount() {
+        this.visitCount++;
+        localStorage.setItem('visitCount', this.visitCount.toString());
+        
+        const visitCountElement = document.getElementById('visitCount');
+        if (visitCountElement) {
+            visitCountElement.textContent = this.visitCount;
+        }
+    }
+
+    trackPreview(url) {
+        try {
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'preview_site', {
+                    'event_category': 'Engagement',
+                    'event_label': url
+                });
+            }
+        } catch (e) {
+            console.warn('Analytics not available');
+        }
+    }
 }
 
-// Add some CSS styles
-document.head.insertAdjacentHTML('beforeend', `
-    <style>
-        .status-indicator {
-            display: inline-flex;
-            align-items: center;
-        }
-        
-        .status-indicator .badge {
-            font-size: 0.75em;
-            padding: 0.25em 0.5em;
-        }
-        
-        .spinner-grow {
-            width: 0.5rem;
-            height: 0.5rem;
-        }
-    </style>
-`);
-
-// Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new App();
 });
