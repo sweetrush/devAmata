@@ -2,173 +2,133 @@ class SitePreview {
     constructor(url, name) {
         this.url = url;
         this.name = name;
-        this.popup = null;
-        this.isDragging = false;
-        this.dragOffset = { x: 0, y: 0 };
-        this.isMinimized = false;
-        this.isMaximized = false;
-        this.originalDimensions = null;
+        this.modal = null;
+        this.currentMode = 'desktop';
     }
 
-    createPopup(x, y) {
-        const popup = document.createElement('div');
-        popup.className = 'preview-popup';
-        
-        popup.innerHTML = `
-            <div class="preview-title-bar">
-                <div class="preview-title">
-                    <img class="preview-favicon" 
-                         src="https://${this.url}/favicon.ico" 
-                         width="16" 
-                         height="16"
-                         onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>'">
-                    <span>${this.name || this.url}</span>
+    createPreview() {
+        // Create modal HTML
+        const modalHtml = `
+            <div class="modal fade" id="preview-${this.url}" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <div class="d-flex align-items-center">
+                                <img class="me-2" 
+                                     src="https://${this.url}/favicon.ico" 
+                                     width="16" 
+                                     height="16"
+                                     onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>'">
+                                <h5 class="modal-title" id="previewModalLabel">${this.name || this.url}</h5>
+                            </div>
+                            <div class="btn-group me-2" role="group" aria-label="Preview modes">
+                                <button type="button" class="btn btn-outline-secondary active" onclick="currentPreview.setMode('desktop')">
+                                    <i class="fas fa-desktop"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="currentPreview.setMode('mobile')">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="currentPreview.setMode('info')">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-0" style="height: 500px;">
+                            <div id="preview-content-${this.url}" class="preview-content desktop-mode h-100">
+                                <div class="loading-spinner position-absolute top-50 start-50 translate-middle">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                                <iframe 
+                                    class="preview-iframe w-100 h-100 border-0"
+                                    src="https://${this.url}" 
+                                    sandbox="allow-same-origin allow-scripts"
+                                    loading="lazy"
+                                    onload="currentPreview.hideLoading()"
+                                ></iframe>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="me-auto">
+                                <span id="status-${this.url}">
+                                    <i class="fas fa-globe me-2"></i>Checking status...
+                                </span>
+                            </div>
+                            <a href="https://${this.url}" class="btn btn-primary" target="_blank">
+                                <i class="fas fa-external-link-alt me-2"></i>Visit Site
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <div class="preview-controls">
-                    <button class="preview-control-btn preview-minimize" onclick="currentPreview.minimize()">
-                        <i class="fas fa-minus fa-xs"></i>
-                    </button>
-                    <button class="preview-control-btn preview-maximize" onclick="currentPreview.maximize()">
-                        <i class="fas fa-expand fa-xs"></i>
-                    </button>
-                    <button class="preview-control-btn preview-close" onclick="currentPreview.close()">
-                        <i class="fas fa-times fa-xs"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="preview-content">
-                <iframe 
-                    class="preview-iframe" 
-                    src="https://${this.url}" 
-                    sandbox="allow-same-origin allow-scripts"
-                    loading="lazy"
-                ></iframe>
-                <div class="preview-resize-handle"></div>
             </div>
         `;
 
-        popup.style.left = `${x}px`;
-        popup.style.top = `${y}px`;
+        // Add modal to document
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
         
-        document.body.appendChild(popup);
-        this.popup = popup;
+        // Get modal instance
+        this.modal = new bootstrap.Modal(document.getElementById(`preview-${this.url}`));
         
-        this.setupDragging();
-        this.setupResizing();
+        // Show modal
+        this.modal.show();
         
-        setTimeout(() => {
-            popup.style.display = 'block';
-        }, 0);
-
-        return popup;
-    }
-
-    setupDragging() {
-        const titleBar = this.popup.querySelector('.preview-title-bar');
+        // Check site status
+        this.checkSiteStatus();
         
-        titleBar.addEventListener('mousedown', (e) => {
-            if (this.isMaximized) return;
-            
-            this.isDragging = true;
-            this.popup.classList.add('dragging');
-            
-            const rect = this.popup.getBoundingClientRect();
-            this.dragOffset = {
-                x: e.clientX - rect.left,
-                y: e.clientY - rect.top
-            };
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!this.isDragging) return;
-
-            const x = e.clientX - this.dragOffset.x;
-            const y = e.clientY - this.dragOffset.y;
-            
-            // Keep within window bounds
-            const maxX = window.innerWidth - this.popup.offsetWidth;
-            const maxY = window.innerHeight - this.popup.offsetHeight;
-            
-            this.popup.style.left = `${Math.max(0, Math.min(x, maxX))}px`;
-            this.popup.style.top = `${Math.max(0, Math.min(y, maxY))}px`;
-        });
-
-        document.addEventListener('mouseup', () => {
-            this.isDragging = false;
-            this.popup.classList.remove('dragging');
+        // Add event listener for modal close
+        document.getElementById(`preview-${this.url}`).addEventListener('hidden.bs.modal', () => {
+            this.destroy();
         });
     }
 
-    setupResizing() {
-        const handle = this.popup.querySelector('.preview-resize-handle');
-        let isResizing = false;
-        let startWidth, startHeight, startX, startY;
-
-        handle.addEventListener('mousedown', (e) => {
-            if (this.isMaximized) return;
-            
-            isResizing = true;
-            startWidth = this.popup.offsetWidth;
-            startHeight = this.popup.offsetHeight;
-            startX = e.clientX;
-            startY = e.clientY;
-            
-            document.body.style.cursor = 'se-resize';
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!isResizing) return;
-
-            const width = startWidth + (e.clientX - startX);
-            const height = startHeight + (e.clientY - startY);
-
-            this.popup.style.width = `${Math.max(300, width)}px`;
-            this.popup.style.height = `${Math.max(200, height)}px`;
-        });
-
-        document.addEventListener('mouseup', () => {
-            isResizing = false;
-            document.body.style.cursor = '';
-        });
-    }
-
-    minimize() {
-        if (this.isMaximized) this.maximize();
-        
-        this.isMinimized = !this.isMinimized;
-        this.popup.classList.toggle('minimized');
-        
-        const btn = this.popup.querySelector('.preview-minimize i');
-        btn.className = this.isMinimized ? 'fas fa-plus fa-xs' : 'fas fa-minus fa-xs';
-    }
-
-    maximize() {
-        if (this.isMinimized) this.minimize();
-        
-        if (!this.isMaximized) {
-            this.originalDimensions = {
-                width: this.popup.style.width,
-                height: this.popup.style.height,
-                top: this.popup.style.top,
-                left: this.popup.style.left
-            };
+    hideLoading() {
+        const spinner = document.querySelector(`#preview-content-${this.url} .loading-spinner`);
+        if (spinner) {
+            spinner.style.display = 'none';
         }
-        
-        this.isMaximized = !this.isMaximized;
-        this.popup.classList.toggle('maximized');
-        
-        if (!this.isMaximized) {
-            Object.assign(this.popup.style, this.originalDimensions);
-        }
-        
-        const btn = this.popup.querySelector('.preview-maximize i');
-        btn.className = this.isMaximized ? 'fas fa-compress fa-xs' : 'fas fa-expand fa-xs';
     }
 
-    close() {
-        if (this.popup) {
-            this.popup.remove();
-            this.popup = null;
+    async checkSiteStatus() {
+        const statusElement = document.getElementById(`status-${this.url}`);
+        try {
+            const response = await fetch(`https://${this.url}`, { mode: 'no-cors' });
+            statusElement.innerHTML = `
+                <i class="fas fa-check-circle text-success me-2"></i>Site is online
+            `;
+        } catch (error) {
+            statusElement.innerHTML = `
+                <i class="fas fa-exclamation-circle text-warning me-2"></i>Status unavailable
+            `;
+        }
+    }
+
+    setMode(mode) {
+        const content = document.getElementById(`preview-content-${this.url}`);
+        const buttons = document.querySelectorAll(`#preview-${this.url} .btn-group button`);
+        
+        // Update buttons
+        buttons.forEach(btn => btn.classList.remove('active'));
+        buttons[mode === 'desktop' ? 0 : mode === 'mobile' ? 1 : 2].classList.add('active');
+
+        // Update content
+        content.classList.remove('desktop-mode', 'mobile-mode', 'info-mode');
+        content.classList.add(`${mode}-mode`);
+
+        if (mode === 'mobile') {
+            content.querySelector('iframe').style.width = '375px';
+        } else if (mode === 'desktop') {
+            content.querySelector('iframe').style.width = '100%';
+        }
+
+        this.currentMode = mode;
+    }
+
+    destroy() {
+        const modalElement = document.getElementById(`preview-${this.url}`);
+        if (modalElement) {
+            modalElement.remove();
         }
         currentPreview = null;
     }
