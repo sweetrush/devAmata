@@ -21,7 +21,7 @@
             min-height: 100vh;
             margin: 0;
             padding: 0;
-            padding-bottom: 60px; /* Space for fixed footer */
+            padding-bottom: 60px;
             position: relative;
         }
 
@@ -49,14 +49,13 @@
             padding-top: 1rem;
         }
 
-        /* Search Container Styles */
+        /* Search Container */
         .search-container {
             background: white;
             padding: 1rem;
             border-radius: 4px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             margin: 2rem auto;
-            position: relative;
         }
 
         .search-box {
@@ -103,7 +102,7 @@
             color: white;
         }
 
-        /* Site List Styles */
+        /* Site List */
         .site-list {
             margin-top: 20px;
         }
@@ -129,15 +128,18 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background-color 0.2s;
         }
 
-        .site-item:last-child {
-            border-bottom: none;
+        .site-favicon {
+            width: 16px;
+            height: 16px;
+            min-width: 16px;
+            object-fit: contain;
+            margin-right: 10px;
         }
 
-        .site-item:hover {
-            background-color: #f8f9fa;
+        .site-favicon.fallback {
+            filter: grayscale(1) opacity(0.5);
         }
 
         .site-link {
@@ -145,12 +147,17 @@
             color: #333;
             display: flex;
             align-items: center;
-            gap: 10px;
             flex-grow: 1;
         }
 
         .site-info {
             flex-grow: 1;
+        }
+
+        .site-details {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .site-name {
@@ -162,13 +169,13 @@
             color: #666;
         }
 
+        /* Status Badges */
         .status-badge {
             padding: 4px 12px;
             border-radius: 12px;
             font-size: 12px;
             font-weight: 500;
             margin-left: 10px;
-            transition: all 0.2s;
         }
 
         .status-up {
@@ -186,7 +193,32 @@
             color: #383d41;
         }
 
-        /* Footer Styles */
+        /* SSL Badge */
+        .ssl-badge {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ssl-secure {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .ssl-not-secure {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .ssl-checking {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+
+        /* Footer */
         .footer {
             position: fixed;
             bottom: 0;
@@ -201,13 +233,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        .visit-count {
-            color: #666;
-        }
-
-        .last-updated {
             color: #666;
         }
 
@@ -243,8 +268,21 @@
                 gap: 8px;
             }
 
-            .status-badge {
-                align-self: flex-start;
+            .site-details {
+                flex-wrap: wrap;
+            }
+
+            .status-badge, .ssl-badge {
+                margin-left: 0;
+            }
+
+            .footer {
+                position: static;
+                margin-top: 2rem;
+            }
+
+            body {
+                padding-bottom: 0;
             }
         }
     </style>
@@ -277,7 +315,8 @@
                     <input type="search" 
                            class="search-input" 
                            placeholder="Search websites by name, category, or URL..."
-                           id="searchInput">
+                           id="searchInput"
+                           autocomplete="off">
                 </div>
                 <button class="refresh-button" id="refreshStatus">
                     <i class="fas fa-sync-alt me-2"></i>Refresh Status
@@ -287,6 +326,11 @@
 
         <!-- Site List -->
         <div class="site-list" id="siteList"></div>
+
+        <!-- No Results Message -->
+        <div id="noResults" class="alert alert-info d-none">
+            No matching sites found.
+        </div>
     </main>
 
     <!-- Footer -->
@@ -307,115 +351,5 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/data.js"></script>
     <script src="js/app.js"></script>
-
-    <script>
-        // Initialize site status check
-        async function checkSiteStatus(url) {
-            try {
-                const response = await fetch(`https://${url}`, { mode: 'no-cors' });
-                return true;
-            } catch (error) {
-                return false;
-            }
-        }
-
-        // Create HTML for a single site
-        function createSiteHTML(site) {
-            return `
-                <div class="site-item" id="site-${site.url.replace(/[^a-zA-Z0-9]/g, '-')}">
-                    <a href="https://${site.url}" class="site-link" target="_blank">
-                        <i class="fas fa-globe"></i>
-                        <div class="site-info">
-                            <div class="site-name">${site.name}</div>
-                            <div class="site-url">${site.url}</div>
-                        </div>
-                    </a>
-                    <span class="status-badge status-checking">
-                        <span class="loading-spinner"></span>Checking
-                    </span>
-                </div>
-            `;
-        }
-
-        // Create HTML for a category section
-        function createCategorySection(categoryName, sites) {
-            const categoryInfo = siteDataHelpers.getCategoryInfo(categoryName);
-            return `
-                <div class="category-section">
-                    <div class="category-header">
-                        <h5>
-                            <i class="fas ${categoryInfo.icon} me-2"></i>
-                            ${categoryName}
-                        </h5>
-                        <span class="badge ${categoryInfo.color}">${sites.length}</span>
-                    </div>
-                    <div class="category-content">
-                        ${sites.map(site => createSiteHTML(site)).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        // Update site status display
-        function updateSiteStatus(url, isUp) {
-            const siteElement = document.getElementById(`site-${url.replace(/[^a-zA-Z0-9]/g, '-')}`);
-            if (siteElement) {
-                const statusBadge = siteElement.querySelector('.status-badge');
-                statusBadge.className = `status-badge ${isUp ? 'status-up' : 'status-down'}`;
-                statusBadge.innerHTML = isUp ? 'Up' : 'Down';
-            }
-        }
-
-        // Initialize the site list and start status checks
-        function initializeSiteList() {
-            const siteListContainer = document.getElementById('siteList');
-            const allCategories = Object.keys(siteData);
-            
-            let html = '';
-            allCategories.forEach(category => {
-                if (siteData[category].length > 0) {
-                    html += createCategorySection(category, siteData[category]);
-                }
-            });
-            
-            siteListContainer.innerHTML = html;
-            
-            // Update total sites count
-            const totalSites = siteDataHelpers.getSiteCount();
-            document.getElementById('totalSites').textContent = totalSites;
-
-            // Start checking status for all sites
-            Object.values(siteData).flat().forEach(site => {
-                checkSiteStatus(site.url).then(isUp => {
-                    updateSiteStatus(site.url, isUp);
-                });
-            });
-        }
-
-        // Search functionality
-        function handleSearch(event) {
-            const searchTerm = event.target.value.toLowerCase();
-            const sites = document.querySelectorAll('.site-item');
-            
-            sites.forEach(site => {
-                const siteContent = site.textContent.toLowerCase();
-                const isVisible = siteContent.includes(searchTerm);
-                site.style.display = isVisible ? '' : 'none';
-            });
-        }
-
-        // Initialize when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeSiteList();
-            
-            // Add search event listener
-            document.getElementById('searchInput').addEventListener('input', handleSearch);
-            
-            // Add refresh button event listener
-            document.getElementById('refreshStatus').addEventListener('click', () => {
-                initializeSiteList();
-            });
-        });
-    </script>
 </body>
 </html>
