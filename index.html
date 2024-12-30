@@ -21,13 +21,15 @@
             min-height: 100vh;
             margin: 0;
             padding: 0;
+            padding-bottom: 60px; /* Space for fixed footer */
+            position: relative;
         }
 
+        /* Header Styles */
         .header {
             background: var(--primary-blue);
             color: white;
             padding: 2rem 0;
-            margin-bottom: 2rem;
         }
 
         .header h1 {
@@ -44,56 +46,17 @@
         .total-sites {
             color: white;
             text-align: right;
+            padding-top: 1rem;
         }
 
+        /* Search Container Styles */
         .search-container {
             background: white;
             padding: 1rem;
             border-radius: 4px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin: 0 auto;
-            max-width: 1200px;
-            margin-bottom: 2rem;
-        }
-
-        .search-input {
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            padding: 0.5rem;
-            width: 100%;
-            outline: none;
-        }
-
-        .refresh-button {
-            color: var(--primary-blue);
-            border: 1px solid var(--primary-blue);
-            background: white;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .refresh-button:hover {
-            background: var(--primary-blue);
-            color: white;
-        }
-
-        .footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            padding: 1rem 0;
-            background: white;
-        }
-
-        .visit-count {
-            float: left;
-        }
-
-        .last-updated {
-            float: right;
-            color: #666;
+            margin: 2rem auto;
+            position: relative;
         }
 
         .search-box {
@@ -102,15 +65,187 @@
             align-items: center;
         }
 
-        .search-icon {
-            color: #666;
-            margin-right: -30px;
-            z-index: 1;
+        .search-input-container {
+            flex-grow: 1;
             position: relative;
         }
 
-        input[type="search"] {
-            padding-left: 35px;
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 12px 8px 35px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .refresh-button {
+            color: var(--primary-blue);
+            border: 1px solid var(--primary-blue);
+            background: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .refresh-button:hover {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        /* Site List Styles */
+        .site-list {
+            margin-top: 20px;
+        }
+
+        .category-section {
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .category-header {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .site-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .site-item:last-child {
+            border-bottom: none;
+        }
+
+        .site-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .site-link {
+            text-decoration: none;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-grow: 1;
+        }
+
+        .site-info {
+            flex-grow: 1;
+        }
+
+        .site-name {
+            font-weight: 500;
+        }
+
+        .site-url {
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 10px;
+            transition: all 0.2s;
+        }
+
+        .status-up {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-down {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-checking {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+
+        /* Footer Styles */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            padding: 1rem 0;
+            border-top: 1px solid #dee2e6;
+            z-index: 1000;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .visit-count {
+            color: #666;
+        }
+
+        .last-updated {
+            color: #666;
+        }
+
+        /* Loading Animation */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 5px;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .search-box {
+                flex-direction: column;
+            }
+
+            .refresh-button {
+                width: 100%;
+            }
+
+            .site-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .status-badge {
+                align-self: flex-start;
+            }
         }
     </style>
 </head>
@@ -118,7 +253,7 @@
     <!-- Header -->
     <header class="header">
         <div class="container">
-            <div class="row align-items-center">
+            <div class="row">
                 <div class="col-md-8">
                     <h1>Samoa Directory</h1>
                     <p>Your comprehensive gateway to Samoan online services</p>
@@ -132,39 +267,155 @@
         </div>
     </header>
 
-    <!-- Search Section -->
-    <div class="search-container">
-        <div class="search-box">
-            <i class="fas fa-search search-icon"></i>
-            <input type="search" 
-                   class="search-input" 
-                   placeholder="Search websites by name, category, or URL..."
-                   id="searchInput">
-            <button class="refresh-button" id="refreshStatus">
-                <i class="fas fa-sync-alt me-2"></i>Refresh Status
-            </button>
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Search Section -->
+        <div class="search-container">
+            <div class="search-box">
+                <div class="search-input-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="search" 
+                           class="search-input" 
+                           placeholder="Search websites by name, category, or URL..."
+                           id="searchInput">
+                </div>
+                <button class="refresh-button" id="refreshStatus">
+                    <i class="fas fa-sync-alt me-2"></i>Refresh Status
+                </button>
+            </div>
         </div>
-    </div>
 
-    <!-- Main Content Area -->
-    <div class="container" id="mainContent">
-        <!-- Categories will be dynamically inserted here -->
-    </div>
+        <!-- Site List -->
+        <div class="site-list" id="siteList"></div>
+    </main>
 
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <div class="visit-count">Visit Count: <span id="visitCount">13</span></div>
-            <div class="last-updated">Last Updated: <span id="lastUpdated">31/12/2024</span></div>
+            <div class="footer-content">
+                <div class="visit-count">
+                    Visit Count: <span id="visitCount">13</span>
+                </div>
+                <div class="last-updated">
+                    Last Updated: <span id="lastUpdated">31/12/2024</span>
+                </div>
+            </div>
         </div>
     </footer>
 
-    <!-- Bootstrap JS -->
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Custom JS -->
     <script src="js/data.js"></script>
-    <script src="js/preview.js"></script>
     <script src="js/app.js"></script>
+
+    <script>
+        // Initialize site status check
+        async function checkSiteStatus(url) {
+            try {
+                const response = await fetch(`https://${url}`, { mode: 'no-cors' });
+                return true;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        // Create HTML for a single site
+        function createSiteHTML(site) {
+            return `
+                <div class="site-item" id="site-${site.url.replace(/[^a-zA-Z0-9]/g, '-')}">
+                    <a href="https://${site.url}" class="site-link" target="_blank">
+                        <i class="fas fa-globe"></i>
+                        <div class="site-info">
+                            <div class="site-name">${site.name}</div>
+                            <div class="site-url">${site.url}</div>
+                        </div>
+                    </a>
+                    <span class="status-badge status-checking">
+                        <span class="loading-spinner"></span>Checking
+                    </span>
+                </div>
+            `;
+        }
+
+        // Create HTML for a category section
+        function createCategorySection(categoryName, sites) {
+            const categoryInfo = siteDataHelpers.getCategoryInfo(categoryName);
+            return `
+                <div class="category-section">
+                    <div class="category-header">
+                        <h5>
+                            <i class="fas ${categoryInfo.icon} me-2"></i>
+                            ${categoryName}
+                        </h5>
+                        <span class="badge ${categoryInfo.color}">${sites.length}</span>
+                    </div>
+                    <div class="category-content">
+                        ${sites.map(site => createSiteHTML(site)).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update site status display
+        function updateSiteStatus(url, isUp) {
+            const siteElement = document.getElementById(`site-${url.replace(/[^a-zA-Z0-9]/g, '-')}`);
+            if (siteElement) {
+                const statusBadge = siteElement.querySelector('.status-badge');
+                statusBadge.className = `status-badge ${isUp ? 'status-up' : 'status-down'}`;
+                statusBadge.innerHTML = isUp ? 'Up' : 'Down';
+            }
+        }
+
+        // Initialize the site list and start status checks
+        function initializeSiteList() {
+            const siteListContainer = document.getElementById('siteList');
+            const allCategories = Object.keys(siteData);
+            
+            let html = '';
+            allCategories.forEach(category => {
+                if (siteData[category].length > 0) {
+                    html += createCategorySection(category, siteData[category]);
+                }
+            });
+            
+            siteListContainer.innerHTML = html;
+            
+            // Update total sites count
+            const totalSites = siteDataHelpers.getSiteCount();
+            document.getElementById('totalSites').textContent = totalSites;
+
+            // Start checking status for all sites
+            Object.values(siteData).flat().forEach(site => {
+                checkSiteStatus(site.url).then(isUp => {
+                    updateSiteStatus(site.url, isUp);
+                });
+            });
+        }
+
+        // Search functionality
+        function handleSearch(event) {
+            const searchTerm = event.target.value.toLowerCase();
+            const sites = document.querySelectorAll('.site-item');
+            
+            sites.forEach(site => {
+                const siteContent = site.textContent.toLowerCase();
+                const isVisible = siteContent.includes(searchTerm);
+                site.style.display = isVisible ? '' : 'none';
+            });
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeSiteList();
+            
+            // Add search event listener
+            document.getElementById('searchInput').addEventListener('input', handleSearch);
+            
+            // Add refresh button event listener
+            document.getElementById('refreshStatus').addEventListener('click', () => {
+                initializeSiteList();
+            });
+        });
+    </script>
 </body>
 </html>
