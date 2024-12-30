@@ -51,7 +51,22 @@ const siteData = {
     // Tourism & Culture
     tourismSites: [
         { url: 'www.samoa.travel.ws', name: 'Samoa Tourism Authority', category: 'Tourism' },
-        { url: 'www.samoahotel.ws', name: 'Samoa Hotel Association', category: 'Tourism' }
+        { url: 'www.samoahotel.ws', name: 'Samoa Hotel Association', category: 'Tourism' },
+        { url: 'www.taumeasinaislandresortsamoa.com', name: 'Taumeasina Island Resort', category: 'Luxury Resort' },
+    { url: 'www.marriott.com/hotels/travel/apwsi-sheraton-samoa-beach-resort', name: 'Sheraton Samoa Beach Resort', category: 'Luxury Resort' },
+    { url: 'www.sinalei.com', name: 'Sinalei Reef Resort & Spa', category: 'Boutique Resort' },
+    { url: 'www.returntoparadiseresort.com', name: 'Return to Paradise Resort', category: 'Beach Resort' },
+    { url: 'www.seabreezesamoa.com', name: 'Seabreeze Resort', category: 'Adults-Only Resort' },
+    { url: 'www.coconuts.ws', name: 'Coconuts Beach Club Resort & Spa', category: 'Beach Resort' },
+    { url: 'www.levasaresort.com', name: 'Le Vasa Resort', category: 'Beach Resort' },
+    { url: 'www.lelagoto.ws', name: 'Le Lagoto Resort', category: 'Boutique Resort' },
+    { url: 'www.amoaresort.com', name: 'Amoa Resort', category: 'Beach Resort' },
+    { url: 'www.stevensonssamoa.com', name: "Stevenson's at Manase", category: 'Beach Resort' },
+    { url: 'www.vaimoanaseasidelodge.com', name: 'Va-i-Moana Seaside Lodge', category: 'Beach Lodge' },
+    { url: 'www.daveparkerecolodge.com', name: 'Dave Parker Eco Lodge', category: 'Eco Lodge' },
+    { url: 'www.saletogasands.com', name: 'Saletoga Sands Resort & Spa', category: 'Beach Resort' },
+    { url: 'www.agareefresort.com', name: 'Aga Reef Resort', category: 'Beach Resort' },
+    { url: 'www.samoa.travel', name: 'Samoa Tourism Authority', category: 'Tourism Authority' }
     ],
 
     // Utilities & Infrastructure
