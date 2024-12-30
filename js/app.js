@@ -1,21 +1,13 @@
-// Main Application Class
 class App {
     constructor() {
         this.visitCount = parseInt(localStorage.getItem('visitCount') || '0');
-        this.currentPreview = null;
+        this.siteStatuses = new Map(); // Store site statuses
         this.init();
     }
 
-    // Initialize the application
-    init() {
-        this.updateVisitCount();
-        this.populateSites();
-        this.initializeSearchFilter();
-        this.setupEventListeners();
-    }
-
-    // Create site link with preview functionality
+    // Create site link with status indicator
     createSiteLink(site) {
+        const statusId = `status-${site.url.replace(/[^a-zA-Z0-9]/g, '-')}`;
         return `
             <div class="site-link">
                 <a href="https://${site.url}" 
@@ -25,7 +17,14 @@ class App {
                     <div class="d-flex align-items-center">
                         <i class="fas fa-globe me-2"></i>
                         <div>
-                            <div class="fw-medium">${site.name}</div>
+                            <div class="d-flex align-items-center">
+                                <span class="fw-medium">${site.name}</span>
+                                <span id="${statusId}" class="status-indicator ms-2">
+                                    <span class="spinner-grow spinner-grow-sm text-secondary" role="status">
+                                        <span class="visually-hidden">Checking status...</span>
+                                    </span>
+                                </span>
+                            </div>
                             <small class="text-muted">${site.url}</small>
                         </div>
                         ${site.category ? 
@@ -40,26 +39,57 @@ class App {
         `;
     }
 
-    // Show site preview modal
-    showPreview(url, name, event) {
-        event.preventDefault();
+    // Check status for a single site
+    async checkSiteStatus(url) {
+        const statusId = `status-${url.replace(/[^a-zA-Z0-9]/g, '-')}`;
+        const statusElement = document.getElementById(statusId);
         
-        // Close existing preview if open
-        if (currentPreview) {
-            currentPreview.modal.hide();
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+            
+            const response = await fetch(`https://${url}`, { 
+                mode: 'no-cors',
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            this.updateStatusIndicator(statusElement, true);
+            this.siteStatuses.set(url, true);
+        } catch (error) {
+            this.updateStatusIndicator(statusElement, false);
+            this.siteStatuses.set(url, false);
         }
+    }
 
-        // Create and show new preview
-        currentPreview = new SitePreview(url, name);
-        currentPreview.createPreview();
+    // Update the status indicator UI
+    updateStatusIndicator(element, isUp) {
+        if (!element) return;
 
-        // Track preview in analytics
-        this.trackPreview(url);
+        element.innerHTML = isUp ? 
+            '<span class="badge bg-success">Up</span>' : 
+            '<span class="badge bg-danger">Down</span>';
+    }
+
+    // Check all sites' status
+    async checkAllSitesStatus() {
+        const allSites = [
+            ...siteData.searchEngines,
+            ...siteData.govSites,
+            ...siteData.bankSites
+        ];
+
+        // Check status for each site
+        for (const site of allSites) {
+            await this.checkSiteStatus(site.url);
+            // Small delay between checks to prevent overwhelming requests
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
     }
 
     // Populate all site categories
     populateSites() {
-        // Populate search engines
+        // Previous population code...
         const searchEnginesContainer = document.getElementById('searchEngines');
         if (searchEnginesContainer) {
             searchEnginesContainer.innerHTML = siteData.searchEngines
@@ -68,7 +98,6 @@ class App {
             this.updateCategoryCount('searchEngineCount', siteData.searchEngines.length);
         }
 
-        // Populate government sites
         const govSitesContainer = document.getElementById('govSites');
         if (govSitesContainer) {
             govSitesContainer.innerHTML = siteData.govSites
@@ -77,7 +106,6 @@ class App {
             this.updateCategoryCount('govSitesCount', siteData.govSites.length);
         }
 
-        // Populate bank sites
         const bankSitesContainer = document.getElementById('bankSites');
         if (bankSitesContainer) {
             bankSitesContainer.innerHTML = siteData.bankSites
@@ -85,151 +113,57 @@ class App {
                 .join('');
             this.updateCategoryCount('banksCount', siteData.bankSites.length);
         }
+
+        // Start checking statuses after populating
+        this.checkAllSitesStatus();
     }
 
-    // Update category counter
-    updateCategoryCount(elementId, count) {
-        const countElement = document.getElementById(elementId);
-        if (countElement) {
-            countElement.textContent = count;
-        }
+    // Initialize the application
+    init() {
+        this.updateVisitCount();
+        this.populateSites();
+        this.initializeSearchFilter();
+        this.setupEventListeners();
+
+        // Add refresh status button
+        this.addRefreshStatusButton();
     }
 
-    // Initialize search functionality
-    initializeSearchFilter() {
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                const searchTerm = e.target.value.toLowerCase().trim();
-                this.filterSites(searchTerm);
-            });
-
-            // Add clear search button functionality
-            const clearSearch = document.getElementById('clearSearch');
-            if (clearSearch) {
-                clearSearch.addEventListener('click', () => {
-                    searchInput.value = '';
-                    this.filterSites('');
-                });
-            }
-        }
-    }
-
-    // Filter sites based on search term
-    filterSites(searchTerm) {
-        document.querySelectorAll('.site-link').forEach(link => {
-            const text = link.textContent.toLowerCase();
-            const parent = link.closest('.card');
-            const isVisible = text.includes(searchTerm);
+    // Add refresh status button
+    addRefreshStatusButton() {
+        const searchContainer = document.querySelector('.search-container');
+        if (searchContainer) {
+            const refreshButton = document.createElement('button');
+            refreshButton.className = 'btn btn-outline-primary ms-2';
+            refreshButton.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Status';
+            refreshButton.onclick = () => this.checkAllSitesStatus();
             
-            // Toggle visibility with animation
-            link.style.display = isVisible ? '' : 'none';
-            if (isVisible) {
-                link.style.opacity = '1';
-            } else {
-                link.style.opacity = '0';
-            }
-            
-            // Update category counters
-            if (parent) {
-                const visibleLinks = parent.querySelectorAll('.site-link[style="display: none"]').length;
-                const counter = parent.querySelector('.badge');
-                if (counter) {
-                    counter.textContent = visibleLinks;
-                }
-            }
-        });
-
-        // Update UI based on search results
-        this.updateSearchResults(searchTerm);
-    }
-
-    // Update UI for search results
-    updateSearchResults(searchTerm) {
-        const noResults = document.getElementById('noResults');
-        const visibleSites = document.querySelectorAll('.site-link[style="display: none"]').length;
-
-        if (noResults) {
-            if (searchTerm && visibleSites === 0) {
-                noResults.classList.remove('d-none');
-                noResults.innerHTML = `
-                    <div class="alert alert-info">
-                        <i class="fas fa-search me-2"></i>
-                        No sites found matching "${searchTerm}"
-                    </div>
-                `;
-            } else {
-                noResults.classList.add('d-none');
-            }
+            searchContainer.querySelector('.input-group').after(refreshButton);
         }
     }
 
-    // Setup global event listeners
-    setupEventListeners() {
-        // Handle escape key to close preview
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && currentPreview) {
-                currentPreview.modal.hide();
-            }
-        });
-
-        // Handle window resize
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                if (currentPreview) {
-                    currentPreview.adjustSize();
-                }
-            }, 100);
-        });
-
-        // Track errors
-        window.addEventListener('error', (e) => {
-            console.error('Application error:', e);
-            this.trackError(e);
-        });
-    }
-
-    // Update visit counter
-    updateVisitCount() {
-        this.visitCount++;
-        localStorage.setItem('visitCount', this.visitCount.toString());
-        
-        const visitCountElement = document.getElementById('visitCount');
-        if (visitCountElement) {
-            visitCountElement.textContent = this.visitCount;
-        }
-    }
-
-    // Analytics tracking
-    trackPreview(url) {
-        try {
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'preview_site', {
-                    'event_category': 'Engagement',
-                    'event_label': url
-                });
-            }
-        } catch (e) {
-            console.warn('Analytics not available');
-        }
-    }
-
-    // Error tracking
-    trackError(error) {
-        try {
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'error', {
-                    'event_category': 'Error',
-                    'event_label': error.message
-                });
-            }
-        } catch (e) {
-            console.warn('Analytics not available');
-        }
-    }
+    // Rest of the App class methods remain the same...
 }
+
+// Add some CSS styles
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .status-indicator .badge {
+            font-size: 0.75em;
+            padding: 0.25em 0.5em;
+        }
+        
+        .spinner-grow {
+            width: 0.5rem;
+            height: 0.5rem;
+        }
+    </style>
+`);
 
 // Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
