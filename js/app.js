@@ -2,7 +2,6 @@ class App {
     constructor() {
         this.visitCount = parseInt(localStorage.getItem('visitCount') || '0');
         this.siteStatuses = new Map();
-        this.currentPreview = null; // Encapsulate currentPreview within the class
         this.init();
     }
 
@@ -17,47 +16,88 @@ class App {
     createSiteLink(site) {
         const statusId = `status-${site.url.replace(/[^a-zA-Z0-9]/g, '-')}`;
         return `
-            <div class="site-link">
-                <button 
-                    class="list-group-item list-group-item-action d-flex justify-content-between align-items-center w-100 border-0 bg-transparent"
-                    data-bs-toggle="modal" 
-                    data-site-url="${site.url}"
-                    data-site-name="${site.name}"
-                    onclick="app.showPreview('${site.url}', '${site.name}', event)">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-globe me-2"></i>
-                        <div>
-                            <div class="d-flex align-items-center">
-                                <span class="fw-medium">${site.name}</span>
-                                <span id="${statusId}" class="status-indicator ms-2">
-                                    <span class="spinner-grow spinner-grow-sm text-secondary" role="status">
-                                        <span class="visually-hidden">Checking status...</span>
-                                    </span>
-                                </span>
+            <div class="site-item">
+                <div class="site-link">
+                    <button 
+                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center w-100 border-0 bg-transparent"
+                        onclick="app.showPreview('${site.url}', '${site.name}', event)">
+                        <div class="d-flex align-items-center">
+                            <img 
+                                class="site-favicon" 
+                                src="https://${site.url}/favicon.ico" 
+                                onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>'; this.classList.add('fallback')"
+                                alt=""
+                            >
+                            <div class="site-info">
+                                <div class="site-name">${site.name}</div>
+                                <div class="site-url">${site.url}</div>
                             </div>
-                            <small class="text-muted">${site.url}</small>
                         </div>
-                        ${site.category ? 
-                            `<span class="badge bg-light text-dark ms-2">${site.category}</span>` 
-                            : ''}
-                    </div>
-                    <div class="preview-link">
-                        <i class="fas fa-external-link-alt"></i>
-                    </div>
-                </button>
+                        <div class="site-details">
+                            <span id="${statusId}" class="status-badge status-checking">
+                                Checking...
+                            </span>
+                        </div>
+                    </button>
+                </div>
             </div>
         `;
+    }
+
+    populateSites() {
+        const siteList = document.getElementById('siteList');
+        if (!siteList) return;
+
+        // Clear existing content
+        siteList.innerHTML = '';
+
+        // Get all categories
+        const categories = siteDataHelpers.getCategories();
+
+        // Create sections for each category
+        categories.forEach(category => {
+            const sites = siteDataHelpers.getSitesByCategory(category);
+            if (sites.length === 0) return;
+
+            const categoryInfo = siteDataHelpers.getCategoryInfo(category);
+            
+            const section = `
+                <div class="category-section mb-4">
+                    <div class="category-header">
+                        <div>
+                            <i class="fas ${categoryInfo.icon} me-2"></i>
+                            <span class="fw-bold">${category}</span>
+                            <span class="text-muted ms-2">(${sites.length} sites)</span>
+                        </div>
+                    </div>
+                    <div class="site-list-items">
+                        ${sites.map(site => this.createSiteLink(site)).join('')}
+                    </div>
+                </div>
+            `;
+
+            siteList.insertAdjacentHTML('beforeend', section);
+        });
+
+        // Update total sites count
+        const totalSites = document.getElementById('totalSites');
+        if (totalSites) {
+            totalSites.textContent = siteDataHelpers.getSiteCount();
+        }
+
+        // Start checking site statuses
+        this.checkAllSitesStatus();
     }
 
     showPreview(url, name, event) {
         event.preventDefault();
         
-        if (this.currentPreview) { // Use this.currentPreview instead of currentPreview
-            this.currentPreview.modal.hide();
+        if (currentPreview) {
+            currentPreview.modal.hide();
         }
 
-        this.currentPreview = new SitePreview(url, name);
-        this.currentPreview.createPreview();
+        currentPreview = new SitePreview(url, name);
+        currentPreview.createPreview();
         this.trackPreview(url);
     }
 
@@ -78,11 +118,6 @@ class App {
             this.updateStatusIndicator(statusElement, true);
             this.siteStatuses.set(url, true);
         } catch (error) {
-            if (error.name === 'AbortError') {
-                console.warn(`Request for ${url} timed out.`);
-            } else {
-                console.error(`Error checking status for ${url}:`, error);
-            }
             this.updateStatusIndicator(statusElement, false);
             this.siteStatuses.set(url, false);
         }
@@ -90,71 +125,11 @@ class App {
 
     updateStatusIndicator(element, isUp) {
         if (!element) return;
-
-        element.innerHTML = isUp ? 
-            '<span class="badge bg-success">Up</span>' : 
-            '<span class="badge bg-danger">Down</span>';
+        
+        element.className = `status-badge ${isUp ? 'status-up' : 'status-down'}`;
+        element.textContent = isUp ? 'Up' : 'Down';
     }
 
-    async checkAllSitesStatus() {
-        const allSites = [
-            ...siteData.searchEngines,
-            ...siteData.govSites,
-            ...siteData.bankSites
-        ];
-
-        for (const site of allSites) {
-            await this.checkSiteStatus(site.url);
-            await new Promise(resolve => setTimeout(resolve, 100));
-        }
-    }
-
-    populateSites() {
-        const siteList = document.getElementById('siteList');
-        if (!siteList) return;
-    
-        // Clear existing content
-        siteList.innerHTML = '';
-    
-        // Get all categories
-        const categories = siteDataHelpers.getCategories();
-    
-        // Create sections for each category
-        categories.forEach(category => {
-            const sites = siteDataHelpers.getSitesByCategory(category);
-            if (sites.length === 0) return;
-    
-            const categoryInfo = siteDataHelpers.getCategoryInfo(category);
-            
-            const section = `
-                <div class="category-section mb-4">
-                    <div class="category-header">
-                        <div>
-                            <i class="fas ${categoryInfo.icon} me-2"></i>
-                            <span class="fw-bold">${category}</span>
-                            <span class="text-muted ms-2">(${sites.length} sites)</span>
-                        </div>
-                    </div>
-                    <div class="site-list-items">
-                        ${sites.map(site => this.createSiteLink(site)).join('')}
-                    </div>
-                </div>
-            `;
-    
-            siteList.insertAdjacentHTML('beforeend', section);
-        });
-    
-        // Update total sites count
-        const totalSites = document.getElementById('totalSites');
-        if (totalSites) {
-            totalSites.textContent = siteDataHelpers.getSiteCount();
-        }
-    
-        // Start checking site statuses
-        this.checkAllSitesStatus();
-    }
-    
-    // Update the checkAllSitesStatus method to use the helper function:
     async checkAllSitesStatus() {
         const allSites = siteDataHelpers.getAllSites();
         
@@ -162,13 +137,6 @@ class App {
             await this.checkSiteStatus(site.url);
             // Add a small delay between checks to prevent overwhelming servers
             await new Promise(resolve => setTimeout(resolve, 100));
-        }
-    }
-
-    updateCategoryCount(elementId, count) {
-        const countElement = document.getElementById(elementId);
-        if (countElement) {
-            countElement.textContent = count;
         }
     }
 
@@ -183,32 +151,27 @@ class App {
     }
 
     filterSites(searchTerm) {
-        document.querySelectorAll('.site-link').forEach(link => {
-            const text = link.textContent.toLowerCase();
-            const parent = link.closest('.card');
+        const allSites = document.querySelectorAll('.site-item');
+        const noResults = document.getElementById('noResults');
+        let hasVisibleSites = false;
+
+        allSites.forEach(siteItem => {
+            const text = siteItem.textContent.toLowerCase();
             const isVisible = text.includes(searchTerm);
-            
-            link.style.display = isVisible ? '' : 'none';
-            
-            if (parent) {
-                const visibleLinks = parent.querySelectorAll('.site-link:not([style="display: none"])').length; // Corrected logic
-                const counter = parent.querySelector('.badge');
-                if (counter) {
-                    counter.textContent = visibleLinks;
-                }
-            }
+            siteItem.style.display = isVisible ? '' : 'none';
+            if (isVisible) hasVisibleSites = true;
         });
 
-        this.updateSearchResults(searchTerm);
-    }
+        // Show/hide category sections based on whether they have visible sites
+        document.querySelectorAll('.category-section').forEach(section => {
+            const hasVisibleSites = Array.from(section.querySelectorAll('.site-item'))
+                .some(item => item.style.display !== 'none');
+            section.style.display = hasVisibleSites ? '' : 'none';
+        });
 
-    updateSearchResults(searchTerm) {
-        const noResults = document.getElementById('noResults');
+        // Show/hide no results message
         if (noResults) {
-            const totalVisible = document.querySelectorAll('.site-link:not([style="display: none"])').length; // Corrected logic
-            const totalSites = document.querySelectorAll('.site-link').length;
-            
-            if (searchTerm && totalVisible === 0 && totalSites > 0) {
+            if (searchTerm && !hasVisibleSites) {
                 noResults.classList.remove('d-none');
                 noResults.innerHTML = `
                     <div class="alert alert-info">
@@ -223,35 +186,31 @@ class App {
     }
 
     setupEventListeners() {
+        // Close preview with Escape key
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.currentPreview) { // Use this.currentPreview instead of currentPreview
-                this.currentPreview.modal.hide();
+            if (e.key === 'Escape' && currentPreview) {
+                currentPreview.modal.hide();
             }
         });
 
+        // Handle window resize for preview
         let resizeTimeout;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
-                if (this.currentPreview) { // Use this.currentPreview instead of currentPreview
-                    this.currentPreview.adjustSize();
+                if (currentPreview) {
+                    currentPreview.adjustSize();
                 }
             }, 100);
         });
     }
 
     addRefreshStatusButton() {
-        const searchContainer = document.querySelector('.search-container');
-        if (searchContainer) {
-            const refreshButton = document.createElement('button');
-            refreshButton.className = 'btn btn-outline-primary ms-2';
-            refreshButton.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Status';
-            refreshButton.onclick = () => this.checkAllSitesStatus();
-            
-            const inputGroup = searchContainer.querySelector('.input-group');
-            if (inputGroup) {
-                inputGroup.parentNode.insertBefore(refreshButton, inputGroup.nextSibling);
-            }
+        const refreshButton = document.getElementById('refreshStatus');
+        if (refreshButton) {
+            refreshButton.addEventListener('click', () => {
+                this.checkAllSitesStatus();
+            });
         }
     }
 
@@ -279,6 +238,7 @@ class App {
     }
 }
 
+// Initialize the app when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new App();
 });
