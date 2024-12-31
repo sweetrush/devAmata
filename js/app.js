@@ -51,22 +51,21 @@ class App {
         // Clear existing content
         siteList.innerHTML = '';
 
-        // Get all categories
-        const categories = siteDataHelpers.getCategories();
-
-        // Create sections for each category
-        categories.forEach(category => {
-            const sites = siteDataHelpers.getSitesByCategory(category);
+        // Process each category of sites
+        Object.entries(siteData).forEach(([key, sites]) => {
             if (sites.length === 0) return;
 
-            const categoryInfo = siteDataHelpers.getCategoryInfo(category);
-            
+            // Convert camelCase to Title Case (e.g., 'govSites' to 'Government')
+            const categoryName = key.replace('Sites', '')
+                                  .replace(/([A-Z])/g, ' $1')
+                                  .trim();
+
             const section = `
                 <div class="category-section mb-4">
                     <div class="category-header">
                         <div>
-                            <i class="fas ${categoryInfo.icon} me-2"></i>
-                            <span class="fw-bold">${category}</span>
+                            <i class="fas ${this.getCategoryIcon(categoryName)} me-2"></i>
+                            <span class="fw-bold">${categoryName}</span>
                             <span class="text-muted ms-2">(${sites.length} sites)</span>
                         </div>
                     </div>
@@ -82,11 +81,30 @@ class App {
         // Update total sites count
         const totalSites = document.getElementById('totalSites');
         if (totalSites) {
-            totalSites.textContent = siteDataHelpers.getSiteCount();
+            const total = Object.values(siteData)
+                .reduce((acc, sites) => acc + sites.length, 0);
+            totalSites.textContent = total;
         }
 
         // Start checking site statuses
         this.checkAllSitesStatus();
+    }
+
+    getCategoryIcon(category) {
+        const iconMap = {
+            'Government': 'fa-landmark',
+            'Bank': 'fa-university',
+            'Education': 'fa-graduation-cap',
+            'Business': 'fa-briefcase',
+            'Tourism': 'fa-umbrella-beach',
+            'Utility': 'fa-bolt',
+            'Media': 'fa-newspaper',
+            'Sports': 'fa-futbol',
+            'Health': 'fa-hospital',
+            'Telecom': 'fa-phone',
+            'ISP': 'fa-wifi'
+        };
+        return iconMap[category] || 'fa-globe';
     }
 
     showPreview(url, name, event) {
@@ -131,7 +149,7 @@ class App {
     }
 
     async checkAllSitesStatus() {
-        const allSites = siteDataHelpers.getAllSites();
+        const allSites = Object.values(siteData).flat();
         
         for (const site of allSites) {
             await this.checkSiteStatus(site.url);
