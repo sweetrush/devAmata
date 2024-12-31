@@ -50,15 +50,17 @@ class App {
 
         // Clear existing content
         siteList.innerHTML = '';
+        let totalSites = 0;
 
-        // Process each category of sites
-        Object.entries(siteData).forEach(([key, sites]) => {
-            if (sites.length === 0) return;
+        // Iterate through each category in siteData
+        Object.entries(siteData).forEach(([categoryKey, sites]) => {
+            if (!sites || sites.length === 0) return;
 
-            // Convert camelCase to Title Case (e.g., 'govSites' to 'Government')
-            const categoryName = key.replace('Sites', '')
-                                  .replace(/([A-Z])/g, ' $1')
-                                  .trim();
+            // Format the category name (e.g., 'govSites' -> 'Government')
+            const categoryName = categoryKey
+                .replace('Sites', '')
+                .replace(/([A-Z])/g, ' $1')
+                .trim();
 
             const section = `
                 <div class="category-section mb-4">
@@ -76,14 +78,13 @@ class App {
             `;
 
             siteList.insertAdjacentHTML('beforeend', section);
+            totalSites += sites.length;
         });
 
         // Update total sites count
-        const totalSites = document.getElementById('totalSites');
-        if (totalSites) {
-            const total = Object.values(siteData)
-                .reduce((acc, sites) => acc + sites.length, 0);
-            totalSites.textContent = total;
+        const totalSitesElement = document.getElementById('totalSites');
+        if (totalSitesElement) {
+            totalSitesElement.textContent = totalSites;
         }
 
         // Start checking site statuses
@@ -149,6 +150,7 @@ class App {
     }
 
     async checkAllSitesStatus() {
+        // Flatten all sites from all categories
         const allSites = Object.values(siteData).flat();
         
         for (const site of allSites) {
