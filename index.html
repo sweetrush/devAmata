@@ -341,26 +341,115 @@
         // Site Data Configuration
         const siteData = {
             // Government Sites
-            govSites: [
-                { url: 'www.psc.gov.ws', name: 'Public Service Commission', category: 'Government' },
-                { url: 'www.audit.gov.ws', name: 'Audit Office', category: 'Government' },
-                { url: 'www.ag.gov.ws', name: 'Attorney General Office', category: 'Government' },
-                { url: 'www.palemene.ws', name: 'Parliament of Samoa', category: 'Government' }
-            ],
+    govSites: [
+        { url: 'www.psc.gov.ws', name: 'Public Service Commission', category: 'Government' },
+        { url: 'www.audit.gov.ws', name: 'Audit Office', category: 'Government' },
+        { url: 'www.ag.gov.ws', name: 'Attorney General Office', category: 'Government' },
+        { url: 'www.palemene.ws', name: 'Parliament of Samoa', category: 'Government' },
+        { url: 'www.ombudsman.gov.ws', name: 'Ombudsman Office', category: 'Government' },
+        { url: 'www.regulator.gov.ws', name: 'Office of the Regulator', category: 'Government' },
+        { url: 'www.oec.gov.ws', name: 'Office of the Electoral Commission', category: 'Government' },
+        { url: 'www.samoalawreform.gov.ws', name: 'Law Reform Commission', category: 'Government' },
+        { url: 'www.sbs.gov.ws', name: 'Samoa Bureau of Statistics', category: 'Government' },
+        { url: 'www.maf.gov.ws', name: 'Ministry of Agriculture', category: 'Government' },
+        { url: 'www.revenue.gov.ws', name: 'Ministry for Revenue', category: 'Government' },
+        { url: 'www.mcil.gov.ws', name: 'Ministry of Commerce', category: 'Government' },
+        { url: 'www.mcit.gov.ws', name: 'Ministry of Communications', category: 'Government' },
+        { url: 'www.mesc.gov.ws', name: 'Ministry of Education', category: 'Government' },
+        { url: 'www.mof.gov.ws', name: 'Ministry of Finance', category: 'Government' },
+        { url: 'www.mfat.gov.ws', name: 'Ministry of Foreign Affairs', category: 'Government' },
+        { url: 'www.health.gov.ws', name: 'Ministry of Health', category: 'Government' },
+        { url: 'www.mjca.gov.ws', name: 'Ministry of Justice', category: 'Government' },
+        { url: 'www.mpmc.gov.ws', name: 'Ministry of Prime Minister', category: 'Government' },
+        { url: 'www.mwcsd.gov.ws', name: 'Ministry of Women & Social Dev', category: 'Government' }
+    ],
 
-            // Banking Sites
-            bankSites: [
-                { url: 'www.cbs.gov.ws', name: 'Central Bank of Samoa', category: 'Banking' },
-                { url: 'www.bsp.com.ws', name: 'BSP Bank Samoa', category: 'Banking' },
-                { url: 'www.nbs.ws', name: 'National Bank of Samoa', category: 'Banking' }
-            ],
+    // Financial Institutions
+    bankSites: [
+        { url: 'www.cbs.gov.ws', name: 'Central Bank of Samoa', category: 'Banking' },
+        { url: 'www.bsp.com.ws', name: 'BSP Bank Samoa', category: 'Banking' },
+        { url: 'www.nbs.ws', name: 'National Bank of Samoa', category: 'Banking' },
+        { url: 'www.sifa.ws', name: 'Samoa Int. Finance Authority', category: 'Banking' },
+        { url: 'www.dbsamoa.ws', name: 'Development Bank of Samoa', category: 'Banking' },
+        { url: 'www.utos.gov.ws', name: 'Unit Trust of Samoa', category: 'Banking' }
+    ],
 
-            // Education Sites
-            educationSites: [
-                { url: 'www.nus.edu.ws', name: 'National University of Samoa', category: 'Education' },
-                { url: 'www.nesc.edu.ws', name: 'National E-Learning Support Center', category: 'Education' },
-                { url: 'www.mesc.gov.ws', name: 'Ministry of Education', category: 'Education' }
-            ]
+    // Education & Research
+    educationSites: [
+        { url: 'www.nus.edu.ws', name: 'National University of Samoa', category: 'Education' },
+        { url: 'www.nesc.edu.ws', name: 'National E-Learning Support Center', category: 'Education' },
+        { url: 'www.mesc.gov.ws', name: 'Ministry of Education', category: 'Education' },
+        { url: 'www.samoa.school.ws', name: 'Samoa School Net', category: 'Education' }
+    ],
+
+    // Business & Commerce
+    businessSites: [
+        { url: 'www.mcil.gov.ws', name: 'Ministry of Commerce', category: 'Business' },
+        { url: 'www.sros.org.ws', name: 'Scientific Research Organisation', category: 'Business' }
+    ],
+
+    // Tourism & Culture
+    tourismSites: [
+        { url: 'www.samoa.travel.ws', name: 'Samoa Tourism Authority', category: 'Tourism' },
+        { url: 'www.samoahotel.ws', name: 'Samoa Hotel Association', category: 'Tourism' },
+        { url: 'www.taumeasinaislandresortsamoa.com', name: 'Taumeasina Island Resort', category: 'Luxury Resort' },
+    { url: 'www.marriott.com/hotels/travel/apwsi-sheraton-samoa-beach-resort', name: 'Sheraton Samoa Beach Resort', category: 'Luxury Resort' },
+    { url: 'www.sinalei.com', name: 'Sinalei Reef Resort & Spa', category: 'Boutique Resort' },
+    { url: 'www.returntoparadiseresort.com', name: 'Return to Paradise Resort', category: 'Beach Resort' },
+    { url: 'www.seabreezesamoa.com', name: 'Seabreeze Resort', category: 'Adults-Only Resort' },
+    { url: 'www.coconuts.ws', name: 'Coconuts Beach Club Resort & Spa', category: 'Beach Resort' },
+    { url: 'www.levasaresort.com', name: 'Le Vasa Resort', category: 'Beach Resort' },
+    { url: 'www.lelagoto.ws', name: 'Le Lagoto Resort', category: 'Boutique Resort' },
+    { url: 'www.amoaresort.com', name: 'Amoa Resort', category: 'Beach Resort' },
+    { url: 'www.stevensonssamoa.com', name: "Stevenson's at Manase", category: 'Beach Resort' },
+    { url: 'www.vaimoanaseasidelodge.com', name: 'Va-i-Moana Seaside Lodge', category: 'Beach Lodge' },
+    { url: 'www.daveparkerecolodge.com', name: 'Dave Parker Eco Lodge', category: 'Eco Lodge' },
+    { url: 'www.saletogasands.com', name: 'Saletoga Sands Resort & Spa', category: 'Beach Resort' },
+    { url: 'www.agareefresort.com', name: 'Aga Reef Resort', category: 'Beach Resort' },
+    { url: 'www.samoa.travel', name: 'Samoa Tourism Authority', category: 'Tourism Authority' }
+    ],
+
+    // Utilities & Infrastructure
+    utilitySites: [
+        { url: 'www.epc.ws', name: 'Electric Power Corporation', category: 'Utility' },
+        { url: 'www.swa.gov.ws', name: 'Samoa Water Authority', category: 'Utility' },
+        { url: 'www.lta.gov.ws', name: 'Land Transport Authority', category: 'Utility' },
+        { url: 'www.samoaland.ws', name: 'Samoa Land Corporation', category: 'Utility' },
+        { url: 'www.spasamoa.ws', name: 'Samoa Ports Authority', category: 'Utility' },
+        { url: 'www.samoapost.ws', name: 'Samoa Post Office', category: 'Utility' }
+    ],
+
+    // Media & Communication
+    mediaSites: [
+        { url: 'www.samoaobserver.ws', name: 'Samoa Observer', category: 'Media' },
+        { url: 'www.radio2ap.ws', name: 'Radio 2AP', category: 'Media' }
+    ],
+
+    // Sports & Recreation
+    sportsSites: [
+        { url: 'www.samoarugby.ws', name: 'Samoa Rugby Union', category: 'Sports' },
+        { url: 'www.sru.ws', name: 'Samoa Rugby', category: 'Sports' }
+    ],
+
+    // Healthcare
+    healthSites: [
+        { url: 'www.health.gov.ws', name: 'Ministry of Health', category: 'Health' },
+        { url: 'www.nkfsamoa.ws', name: 'National Kidney Foundation', category: 'Health' }
+    ],
+
+    // Telecommunications
+    telecomSites: [
+        { url: 'www.digicelgroup.ws', name: 'Digicel Samoa', category: 'Telecom' },
+        { url: 'www.vodafone.ws', name: 'Vodafone Samoa', category: 'Telecom' },
+        { url: 'www.bluesky.ws', name: 'Bluesky Samoa', category: 'Telecom' }
+    ],
+
+    // Internet Service Providers
+    ispSites: [
+        { url: 'www.csl.ws', name: 'Computer Services Limited', category: 'ISP' },
+        { url: 'www.lesamoa.ws', name: 'Le Samoa', category: 'ISP' },
+        { url: 'www.ipasifika.ws', name: 'Ipasifika', category: 'ISP' }
+    ]
         };
 
         // Preview Configuration
