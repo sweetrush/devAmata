@@ -11,6 +11,7 @@
     border-radius: 32px;
     height: calc(100% - 24px) !important;
     margin-top: 12px;
+    max-width: 375px;
 }
 
 /* Loading spinner */
@@ -25,6 +26,10 @@
 }
 
 /* Modal customization */
+.modal-header {
+    padding: 1rem;
+}
+
 .modal-header .btn-group .btn {
     padding: 0.375rem 0.75rem;
 }
@@ -35,6 +40,7 @@
 
 .modal-footer {
     background-color: #f8f9fa;
+    padding: 0.75rem;
 }
 
 /* Animation */
@@ -45,4 +51,82 @@
 .modal.show .modal-dialog {
     transform: scale(1);
     transition: transform 0.3s ease-out;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+
+    .modal-header {
+        padding: 0.75rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .modal-header .btn-group {
+        order: 2;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .modal-header .btn-group .btn {
+        flex: 1;
+        padding: 0.5rem;
+    }
+
+    .modal-title {
+        font-size: 1.1rem;
+        width: calc(100% - 40px);
+    }
+
+    .modal-body {
+        height: 60vh;
+        overflow: auto;
+    }
+
+    .preview-content iframe {
+        height: 100% !important;
+    }
+
+    .preview-content.mobile-mode iframe {
+        border: 8px solid #333 !important;
+        border-radius: 24px;
+        height: calc(100% - 16px) !important;
+        margin-top: 8px;
+    }
+
+    .modal-footer {
+        padding: 0.75rem;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+        margin: 0 !important;
+    }
+}
+
+/* Small mobile adjustments */
+@media (max-width: 375px) {
+    .modal-header {
+        padding: 0.5rem;
+    }
+
+    .modal-title {
+        font-size: 1rem;
+    }
+
+    .modal-header .btn-group .btn {
+        padding: 0.375rem;
+    }
+
+    .preview-content.mobile-mode iframe {
+        border: 6px solid #333 !important;
+        border-radius: 16px;
+    }
 }
