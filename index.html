@@ -12,7 +12,7 @@
     
     <style>
         :root {
-            /* Primary Colors */
+            /* Default Theme (Blue) */
             --primary-blue: #1a73e8;
             --primary-dark: #1557b0;
             --primary-light: #e8f0fe;
@@ -34,6 +34,43 @@
             --error-text: #d93025;
             --warning-bg: #fef7e0;
             --warning-text: #b06000;
+
+            /* Theme Variables */
+            --theme-name: 'default';
+        }
+
+        [data-theme="green"] {
+            --primary-blue: #0b8043;
+            --primary-dark: #0a5c36;
+            --primary-light: #e6f4ea;
+            --theme-name: 'green';
+        }
+
+        [data-theme="purple"] {
+            --primary-blue: #8e24aa;
+            --primary-dark: #6a1b9a;
+            --primary-light: #f3e5f5;
+            --theme-name: 'purple';
+        }
+
+        [data-theme="orange"] {
+            --primary-blue: #e65100;
+            --primary-dark: #bf360c;
+            --primary-light: #fbe9e7;
+            --theme-name: 'orange';
+        }
+
+        [data-theme="dark"] {
+            --primary-blue: #5c6bc0;
+            --primary-dark: #3949ab;
+            --primary-light: #e8eaf6;
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --border-color: #333;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --text-tertiary: #808080;
+            --theme-name: 'dark';
             
             /* Shadows */
             --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
@@ -577,8 +614,26 @@
                     <p>Your comprehensive gateway to Samoan online services</p>
                 </div>
                 <div class="col-md-4">
-                    <div class="total-sites">
-                        <i class="fas fa-globe me-2"></i>Total Sites: <span id="totalSites">0</span>
+                    <div class="d-flex flex-column gap-2">
+                        <div class="total-sites">
+                            <i class="fas fa-globe me-2"></i>Total Sites: <span id="totalSites">0</span>
+                        </div>
+                        <div class="theme-selector">
+                            <select id="themeSelect" class="form-select form-select-sm">
+                                <option value="default" data-color="#1a73e8">Default Theme</option>
+                                <option value="green" data-color="#0b8043">Green Theme</option>
+                                <option value="purple" data-color="#8e24aa">Purple Theme</option>
+                                <option value="orange" data-color="#e65100">Orange Theme</option>
+                                <option value="dark" data-color="#5c6bc0">Dark Theme</option>
+                            </select>
+                            <div class="theme-preview mt-2 d-flex gap-2">
+                                <div class="theme-option" data-theme="default" style="background-color: #1a73e8;"></div>
+                                <div class="theme-option" data-theme="green" style="background-color: #0b8043;"></div>
+                                <div class="theme-option" data-theme="purple" style="background-color: #8e24aa;"></div>
+                                <div class="theme-option" data-theme="orange" style="background-color: #e65100;"></div>
+                                <div class="theme-option" data-theme="dark" style="background-color: #5c6bc0;"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -963,10 +1018,11 @@
 
             async checkAllSitesStatus() {
                 const allSites = Object.values(siteData).flat();
+                const batchSize = 10; // Check 10 sites at a time
                 
-                for (const site of allSites) {
-                    await this.checkSiteStatus(site.url);
-                    await new Promise(resolve => setTimeout(resolve, 100));
+                for (let i = 0; i < allSites.length; i += batchSize) {
+                    const batch = allSites.slice(i, i + batchSize);
+                    await Promise.all(batch.map(site => this.checkSiteStatus(site.url)));
                 }
             }
 
@@ -1028,6 +1084,39 @@
                         this.checkAllSitesStatus();
                     });
                 }
+            }
+
+            setupThemeSwitcher() {
+                const themeSelect = document.getElementById('themeSelect');
+                if (!themeSelect) return;
+
+                // Load saved theme or use default
+                const savedTheme = localStorage.getItem('theme') || 'default';
+                document.body.setAttribute('data-theme', savedTheme);
+                themeSelect.value = savedTheme;
+
+                // Handle theme changes
+                themeSelect.addEventListener('change', (e) => {
+                    const theme = e.target.value;
+                    document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+                    document.body.setAttribute('data-theme', theme);
+                    localStorage.setItem('theme', theme);
+                    
+                    // Reset transition after change completes
+                    setTimeout(() => {
+                        document.body.style.transition = '';
+                    }, 300);
+                });
+
+                // Add click handlers for theme preview options
+                const themeOptions = document.querySelectorAll('.theme-option');
+                themeOptions.forEach(option => {
+                    option.addEventListener('click', () => {
+                        const theme = option.dataset.theme;
+                        themeSelect.value = theme;
+                        themeSelect.dispatchEvent(new Event('change'));
+                    });
+                });
             }
 
             updateVisitCount() {
